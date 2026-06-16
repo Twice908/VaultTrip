@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String     @id @default(cuid())
+  clerkId     String     @unique
+  email       String     @unique
+  nationality String?
+  trips       Trip[]
+  documents   Document[]
+  createdAt   DateTime   @default(now())
+}
+
+model Trip {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  name          String
+  origin        String
+  destination   String
+  departureDate DateTime
+  returnDate    DateTime?
+  tripType      TripType        @default(TOURISM)
+  documents     Document[]
+  checklist     ChecklistItem[]
+  shareToken    String?         @unique
+  createdAt     DateTime        @default(now())
+}
+
+model Document {
+  id          String       @id @default(cuid())
+  userId      String
+  tripId      String?
+  user        User         @relation(fields: [userId], references: [id])
+  trip        Trip?        @relation(fields: [tripId], references: [id])
+  type        DocumentType
+  name        String
+  fileKey     String
+  fileSize    Int
+  mimeType    String
+  expiryDate  DateTime?
+  issueDate   DateTime?
+  docNumber   String?
+  issuedBy    String?
+  aiProcessed Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+}
+
+model ChecklistItem {
+  id          String          @id @default(cuid())
+  tripId      String
+  trip        Trip            @relation(fields: [tripId], references: [id])
+  label       String
+  description String?
+  required    RequiredLevel
+  status      ChecklistStatus @default(PENDING)
+  documentId  String?
+  createdAt   DateTime        @default(now())
+}
+
+enum DocumentType {
+  PASSPORT
+  VISA
+  TRAVEL_INSURANCE
+  FLIGHT_BOOKING
+  HOTEL_BOOKING
+  VACCINATION_RECORD
+  TRAVEL_PERMIT
+  IDENTITY_CARD
+  OTHER
+}
+
+enum TripType {
+  TOURISM
+  BUSINESS
+  TRANSIT
+  STUDY
+  WORK
+}
+
+enum RequiredLevel {
+  REQUIRED
+  RECOMMENDED
+  OPTIONAL
+}
+
+enum ChecklistStatus {
+  PENDING
+  FULFILLED
+  NOT_APPLICABLE
+  FLAGGED
+}
