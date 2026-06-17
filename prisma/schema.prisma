@@ -7,13 +7,34 @@ datasource db {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  clerkId     String     @unique
-  email       String     @unique
+  id          String          @id @default(cuid())
+  clerkId     String          @unique
+  email       String          @unique
   nationality String?
   trips       Trip[]
   documents   Document[]
-  createdAt   DateTime   @default(now())
+  preferences UserPreferences?
+  createdAt   DateTime        @default(now())
+}
+
+model UserPreferences {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alertPassport   Boolean @default(true)
+  alertVisa       Boolean @default(true)
+  alertInsurance  Boolean @default(true)
+  alertTripHealth Boolean @default(true)
+}
+
+model AlertSentLog {
+  id        String   @id @default(cuid())
+  userId    String
+  entityId  String
+  alertType String
+  sentAt    DateTime @default(now())
+
+  @@index([entityId, alertType, sentAt])
 }
 
 model Trip {

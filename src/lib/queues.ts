@@ -29,3 +29,13 @@ export const expiryCheckQueue = new Queue('expiry-check', {
     removeOnFail: 100,
   },
 })
+
+export const sendAlertQueue = new Queue('send-alert', {
+  connection: redis,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 10000 },
+    removeOnComplete: 50,
+    removeOnFail: 200,
+  },
+})
